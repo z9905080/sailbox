@@ -59,6 +59,7 @@ import {
 } from "@/hooks/use-resources";
 import { api } from "@/lib/api";
 import { statusVariant } from "@/lib/constants";
+import { copyText } from "@/lib/utils";
 import type { SharedResource } from "@/types/api";
 
 export const Route = createFileRoute("/_dashboard/resources")({
@@ -748,7 +749,7 @@ function ResourceCard({
   const hasPrivateKey = type === "ssh_key" && Boolean(config?.private_key);
 
   function copyToClipboard(text: string, label: string) {
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopiedField(label);
     toast.success(`${label} copied!`);
     setTimeout(() => setCopiedField(null), 2000);

@@ -34,6 +34,7 @@ import {
   useWebhookConfig,
 } from "@/hooks/use-apps";
 import { statusVariant } from "@/lib/constants";
+import { copyText } from "@/lib/utils";
 import type { App, Deployment } from "@/types/api";
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -82,7 +83,7 @@ function WebhookSection({ app, appId }: { app: App; appId: string }) {
   const provider = isGitLab ? "GitLab" : "GitHub";
 
   function copyToClipboard(text: string, label: string) {
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopiedField(label);
     toast.success(`${label} copied!`);
     setTimeout(() => setCopiedField(null), 2000);

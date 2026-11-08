@@ -23,7 +23,7 @@ import { useCurrentUser } from "@/hooks/use-auth";
 import { useActiveAlerts } from "@/hooks/use-monitoring";
 import { useTriggerUpgrade, useVersion } from "@/hooks/use-version";
 import { clearTokens } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { cn, copyText } from "@/lib/utils";
 
 // ── Collapse context ────────────────────────────────────────────
 
@@ -184,7 +184,7 @@ function UpgradeButton({
   const upgradeCmd = "curl -sSL https://get.sailbox.dev/upgrade | sudo sh";
 
   function copyCommand() {
-    navigator.clipboard.writeText(upgradeCmd);
+    copyText(upgradeCmd);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }

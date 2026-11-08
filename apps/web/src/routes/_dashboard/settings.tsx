@@ -74,6 +74,7 @@ import {
   useTeamMembers,
   useUpdateMemberRole,
 } from "@/hooks/use-team";
+import { copyText } from "@/lib/utils";
 import type {
   Invitation,
   NotificationChannel,
@@ -1419,7 +1420,7 @@ function InviteDialog() {
 
   const handleCopy = () => {
     if (!inviteUrl) return;
-    navigator.clipboard.writeText(inviteUrl);
+    copyText(inviteUrl);
     setCopied(true);
     toast.success("Invite URL copied");
     setTimeout(() => setCopied(false), 2000);

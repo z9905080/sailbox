@@ -12,6 +12,7 @@ import {
   useTraefikStatus,
   useUpdateTraefikConfig,
 } from "@/hooks/use-cluster";
+import { copyText } from "@/lib/utils";
 
 export const Route = createFileRoute("/_dashboard/traefik")({
   component: TraefikPage,
@@ -51,7 +52,7 @@ function TraefikPage() {
   }
 
   function handleCopy() {
-    navigator.clipboard.writeText(displayYaml).then(() => {
+    copyText(displayYaml).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });

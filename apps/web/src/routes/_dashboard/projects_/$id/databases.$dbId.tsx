@@ -58,6 +58,7 @@ import {
 } from "@/hooks/use-databases";
 import { useResources } from "@/hooks/use-resources";
 import { ENGINE_LABELS, statusDotColor, statusVariant } from "@/lib/constants";
+import { copyText } from "@/lib/utils";
 import type { DatabaseBackup, ManagedDB, PodInfo, SharedResource } from "@/types/api";
 
 export const Route = createFileRoute("/_dashboard/projects_/$id/databases/$dbId")({
@@ -67,7 +68,7 @@ export const Route = createFileRoute("/_dashboard/projects_/$id/databases/$dbId"
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text);
+  copyText(text);
   toast.success("Copied");
 }
 

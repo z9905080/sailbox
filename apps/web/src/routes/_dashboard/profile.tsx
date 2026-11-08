@@ -18,7 +18,7 @@ import {
   useVerify2FA,
 } from "@/hooks/use-auth";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
-import { cn } from "@/lib/utils";
+import { cn, copyText } from "@/lib/utils";
 
 export const Route = createFileRoute("/_dashboard/profile")({
   component: ProfilePage,
@@ -151,7 +151,7 @@ function ProfilePage() {
 
   const copySecret = () => {
     if (tfaSetupData?.secret) {
-      navigator.clipboard.writeText(tfaSetupData.secret);
+      copyText(tfaSetupData.secret);
       setSecretCopied(true);
       setTimeout(() => setSecretCopied(false), 2000);
     }

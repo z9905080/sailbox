@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
+import { copyText } from "@/lib/utils";
 
 export const Route = createFileRoute("/_dashboard/api-keys")({ component: APIKeysPage });
 
@@ -233,7 +234,7 @@ function APIKeysPage() {
               variant="outline"
               onClick={async () => {
                 try {
-                  await navigator.clipboard.writeText(secret);
+                  await copyText(secret);
                   toast.success("Copied");
                 } catch {
                   toast.error("Could not copy. Select and copy the key manually.");

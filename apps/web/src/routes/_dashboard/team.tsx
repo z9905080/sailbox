@@ -36,6 +36,7 @@ import {
   useTeamMembers,
   useUpdateMemberRole,
 } from "@/hooks/use-team";
+import { copyText } from "@/lib/utils";
 import type { Invitation, TeamMember } from "@/types/api";
 
 export const Route = createFileRoute("/_dashboard/team")({
@@ -356,7 +357,7 @@ function InviteDialog() {
 
   const handleCopy = () => {
     if (!inviteUrl) return;
-    navigator.clipboard.writeText(inviteUrl);
+    copyText(inviteUrl);
     setCopied(true);
     toast.success("Invite URL copied");
     setTimeout(() => setCopied(false), 2000);
