@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/uptrace/bun/migrate"
 
+	"github.com/sailboxhq/sailbox/apps/api/internal/api/middleware"
 	"github.com/sailboxhq/sailbox/apps/api/internal/api/ws"
 	"github.com/sailboxhq/sailbox/apps/api/internal/auth"
 	"github.com/sailboxhq/sailbox/apps/api/internal/config"
@@ -36,11 +37,13 @@ func main() {
 	// Sentry — only active when SENTRY_DSN is set
 	if dsn := os.Getenv("SENTRY_DSN"); dsn != "" {
 		if err := sentry.Init(sentry.ClientOptions{
-			Dsn:              dsn,
-			Release:          version.Version,
-			Environment:      os.Getenv("SENTRY_ENV"),
-			TracesSampleRate: 0.2,
-			EnableTracing:    true,
+			Dsn:                   dsn,
+			Release:               version.Version,
+			Environment:           os.Getenv("SENTRY_ENV"),
+			TracesSampleRate:      0.2,
+			EnableTracing:         true,
+			BeforeSend:            middleware.RedactSentryCredentials,
+			BeforeSendTransaction: middleware.RedactSentryCredentials,
 		}); err != nil {
 			logger.Warn("sentry init failed", slog.Any("error", err))
 		} else {

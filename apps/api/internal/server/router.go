@@ -106,16 +106,28 @@ func NewRouter(deps *RouterDeps) *gin.Engine {
 
 		// Protected routes
 		protected := apiV1.Group("")
-		protected.Use(middleware.Auth(deps.JWTManager, deps.Sessions))
+		keyService := service.NewAPIKeyService(deps.Store)
+		protected.Use(middleware.Auth(deps.JWTManager, deps.Sessions, keyService))
 		{
+			// A small read-only endpoint for checking either JWT or API-key access.
+			protected.GET("/status", func(c *gin.Context) {
+				c.JSON(200, gin.H{"status": "ok"})
+			})
+			keys := protected.Group("/api-keys", middleware.RequireJWT(), middleware.RequireRole("owner", "admin"))
+			keyHandler := v1.NewAPIKeyHandler(keyService)
+			keys.GET("", keyHandler.List)
+			keys.POST("", keyHandler.Create)
+			keys.PUT("/:id", keyHandler.Update)
+			keys.DELETE("/:id", keyHandler.Revoke)
+
 			// Auth
 			protected.GET("/auth/me", authHandler.Me)
-			protected.PATCH("/auth/profile", authHandler.UpdateProfile)
-			protected.POST("/auth/change-password", authHandler.ChangePassword)
+			protected.PATCH("/auth/profile", middleware.RequireJWT(), authHandler.UpdateProfile)
+			protected.POST("/auth/change-password", middleware.RequireJWT(), authHandler.ChangePassword)
 			protected.GET("/auth/avatars", authHandler.ListAvatars)
-			protected.POST("/auth/2fa/setup", authHandler.Setup2FA)
-			protected.POST("/auth/2fa/verify", authHandler.Verify2FA)
-			protected.POST("/auth/2fa/disable", authHandler.Disable2FA)
+			protected.POST("/auth/2fa/setup", middleware.RequireJWT(), authHandler.Setup2FA)
+			protected.POST("/auth/2fa/verify", middleware.RequireJWT(), authHandler.Verify2FA)
+			protected.POST("/auth/2fa/disable", middleware.RequireJWT(), authHandler.Disable2FA)
 
 			// GitHub OAuth
 			protected.GET("/auth/github/connect", githubOAuth.Connect)

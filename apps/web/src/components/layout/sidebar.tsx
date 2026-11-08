@@ -609,6 +609,15 @@ export function Sidebar() {
         {/* System */}
         <SectionLabel label="System" collapsed={collapsed} />
         <div className="space-y-1">
+          {(user?.role === "owner" || user?.role === "admin") && (
+            <NavItem
+              href="/api-keys"
+              icon={KeyRound}
+              label="API Keys"
+              isActive={location.pathname.startsWith("/api-keys")}
+              collapsed={collapsed}
+            />
+          )}
           <NavItem
             href="/settings"
             icon={Settings}

@@ -26,6 +26,7 @@ import { Route as DashboardDashboardRouteImport } from './routes/_dashboard/dash
 import { Route as DashboardCronjobsRouteImport } from './routes/_dashboard/cronjobs'
 import { Route as DashboardClusterRouteImport } from './routes/_dashboard/cluster'
 import { Route as DashboardAppsRouteImport } from './routes/_dashboard/apps'
+import { Route as DashboardApiKeysRouteImport } from './routes/_dashboard/api-keys'
 import { Route as DashboardProjectsIdRouteImport } from './routes/_dashboard/projects_/$id'
 import { Route as DashboardProjectsIdIndexRouteImport } from './routes/_dashboard/projects_/$id/index'
 import { Route as DashboardProjectsIdDatabasesDbIdRouteImport } from './routes/_dashboard/projects_/$id/databases.$dbId'
@@ -115,6 +116,11 @@ const DashboardAppsRoute = DashboardAppsRouteImport.update({
   path: '/apps',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardApiKeysRoute = DashboardApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardProjectsIdRoute = DashboardProjectsIdRouteImport.update({
   id: '/projects_/$id',
   path: '/projects/$id',
@@ -141,6 +147,7 @@ const DashboardProjectsIdAppsAppIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api-keys': typeof DashboardApiKeysRoute
   '/apps': typeof DashboardAppsRoute
   '/cluster': typeof DashboardClusterRoute
   '/cronjobs': typeof DashboardCronjobsRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api-keys': typeof DashboardApiKeysRoute
   '/apps': typeof DashboardAppsRoute
   '/cluster': typeof DashboardClusterRoute
   '/cronjobs': typeof DashboardCronjobsRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_dashboard': typeof DashboardRouteWithChildren
+  '/_dashboard/api-keys': typeof DashboardApiKeysRoute
   '/_dashboard/apps': typeof DashboardAppsRoute
   '/_dashboard/cluster': typeof DashboardClusterRoute
   '/_dashboard/cronjobs': typeof DashboardCronjobsRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api-keys'
     | '/apps'
     | '/cluster'
     | '/cronjobs'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api-keys'
     | '/apps'
     | '/cluster'
     | '/cronjobs'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_dashboard'
+    | '/_dashboard/api-keys'
     | '/_dashboard/apps'
     | '/_dashboard/cluster'
     | '/_dashboard/cronjobs'
@@ -404,6 +416,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAppsRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/api-keys': {
+      id: '/_dashboard/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof DashboardApiKeysRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/projects_/$id': {
       id: '/_dashboard/projects_/$id'
       path: '/projects/$id'
@@ -451,6 +470,7 @@ const DashboardProjectsIdRouteWithChildren =
   DashboardProjectsIdRoute._addFileChildren(DashboardProjectsIdRouteChildren)
 
 interface DashboardRouteChildren {
+  DashboardApiKeysRoute: typeof DashboardApiKeysRoute
   DashboardAppsRoute: typeof DashboardAppsRoute
   DashboardClusterRoute: typeof DashboardClusterRoute
   DashboardCronjobsRoute: typeof DashboardCronjobsRoute
@@ -467,6 +487,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardApiKeysRoute: DashboardApiKeysRoute,
   DashboardAppsRoute: DashboardAppsRoute,
   DashboardClusterRoute: DashboardClusterRoute,
   DashboardCronjobsRoute: DashboardCronjobsRoute,

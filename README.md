@@ -143,3 +143,7 @@ Sailbox is open-source under [AGPL-3.0](LICENSE) with [attribution terms](NOTICE
   <a href="https://github.com/sailboxhq/sailbox">Documentation</a> ·
   <a href="https://github.com/sailboxhq/sailbox/discussions">Community</a>
 </p>
+
+## REST API keys
+
+Owners/admins can create hashed, revocable automation keys in **API Keys** in the dashboard. Both Bearer API keys and `X-API-Key` are supported alongside existing JWT auth. See [API key setup, usage, migrations and tests](docs/api-keys.md).

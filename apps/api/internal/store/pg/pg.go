@@ -125,3 +125,5 @@ func (s *Store) NotificationChannels() store.NotificationChannelStore {
 	return &notificationChannelStore{db: s.idb}
 }
 func (s *Store) SystemBackups() store.SystemBackupStore { return &systemBackupStore{db: s.idb} }
+
+func (s *Store) APIKeys() store.APIKeyStore { return &apiKeyStore{db: s.idb} }

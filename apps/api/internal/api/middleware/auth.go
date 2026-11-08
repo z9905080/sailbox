@@ -68,15 +68,25 @@ const (
 	CtxRole   = "role"
 )
 
-// Auth returns a middleware that validates JWT tokens.
+// Auth validates JWT sessions or prefixed API keys supplied in request headers.
 //
 // A valid signature is necessary but not sufficient: the session validator also
 // confirms the account still exists and that the token was not superseded by a
 // password change, role change or removal. Without that check a token issued
 // before a revocation keeps working until it expires.
-func Auth(jwtManager *auth.JWTManager, sessions auth.SessionValidator) gin.HandlerFunc {
+func Auth(jwtManager *auth.JWTManager, sessions auth.SessionValidator, apiKeys ...auth.APIKeyAuthenticator) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
+		keyHeader := c.GetHeader("X-API-Key")
+		// Reject duplicate or competing credentials rather than guessing which wins.
+		if len(c.Request.Header.Values("Authorization")) > 1 || len(c.Request.Header.Values("X-API-Key")) > 1 || (header != "" && keyHeader != "") {
+			c.AbortWithStatusJSON(401, apierr.ErrUnauthorized.WithDetail("ambiguous authentication headers"))
+			return
+		}
+		if keyHeader != "" {
+			authenticateKey(c, keyHeader, apiKeys)
+			return
+		}
 		if header == "" {
 			c.AbortWithStatusJSON(401, apierr.ErrUnauthorized.WithDetail("missing authorization header"))
 			return
@@ -88,6 +98,10 @@ func Auth(jwtManager *auth.JWTManager, sessions auth.SessionValidator) gin.Handl
 			return
 		}
 
+		if strings.HasPrefix(parts[1], auth.APIKeyPrefix) {
+			authenticateKey(c, parts[1], apiKeys)
+			return
+		}
 		claims, err := jwtManager.ValidateAccessToken(parts[1])
 		if err != nil {
 			c.AbortWithStatusJSON(401, apierr.ErrUnauthorized.WithDetail(err.Error()))
@@ -98,6 +112,8 @@ func Auth(jwtManager *auth.JWTManager, sessions auth.SessionValidator) gin.Handl
 			c.AbortWithStatusJSON(401, apierr.ErrUnauthorized.WithDetail("session is no longer valid — please log in again"))
 			return
 		}
+
+		c.Set("auth_method", "jwt")
 
 		// Store user info in context
 		c.Set(CtxUserID, claims.UserID)
@@ -203,4 +219,33 @@ func RequireSetupSecret(secret string) gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+// RequireJWT prevents an automation key from minting additional API keys
+// or directly changing the account's password / second factor.
+func RequireJWT() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if method, _ := c.Get("auth_method"); method != "jwt" {
+			c.AbortWithStatusJSON(403, apierr.ErrForbidden.WithDetail("interactive JWT session required"))
+			return
+		}
+		c.Next()
+	}
+}
+
+func authenticateKey(c *gin.Context, key string, authenticators []auth.APIKeyAuthenticator) {
+	if len(authenticators) == 0 || authenticators[0] == nil || !auth.IsAPIKey(key) {
+		c.AbortWithStatusJSON(401, apierr.ErrUnauthorized.WithDetail("invalid or expired API key"))
+		return
+	}
+	user, err := authenticators[0].AuthenticateAPIKey(c.Request.Context(), key)
+	if err != nil || user == nil {
+		c.AbortWithStatusJSON(401, apierr.ErrUnauthorized.WithDetail("invalid or expired API key"))
+		return
+	}
+	c.Set(CtxUserID, user.ID)
+	c.Set(CtxOrgID, user.OrgID)
+	c.Set(CtxRole, string(user.Role))
+	c.Set("auth_method", "api_key")
+	c.Next()
 }

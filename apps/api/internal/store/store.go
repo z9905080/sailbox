@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/sailboxhq/sailbox/apps/api/internal/model"
@@ -20,6 +21,7 @@ type Store interface {
 	AcquireSetupLock(ctx context.Context) error
 
 	Organizations() OrganizationStore
+	APIKeys() APIKeyStore
 	Users() UserStore
 	Projects() ProjectStore
 	Applications() ApplicationStore
@@ -244,4 +246,14 @@ type SystemBackupStore interface {
 	Update(ctx context.Context, backup *model.SystemBackup) error
 	List(ctx context.Context, params ListParams) ([]model.SystemBackup, int, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*model.SystemBackup, error)
+}
+
+// APIKeyStore never stores or returns plaintext credentials.
+type APIKeyStore interface {
+	Create(context.Context, *model.APIKey) error
+	ListByUser(context.Context, uuid.UUID) ([]model.APIKey, error)
+	GetByHash(context.Context, string) (*model.APIKey, error)
+	UpdateMetadata(context.Context, uuid.UUID, uuid.UUID, string, *time.Time) error
+	Revoke(context.Context, uuid.UUID, uuid.UUID) error
+	Touch(context.Context, uuid.UUID, time.Time) error
 }
