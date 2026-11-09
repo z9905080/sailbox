@@ -25,6 +25,18 @@ jobs:
           gofmt -l . | tee /tmp/fmt.out
           test ! -s /tmp/fmt.out
 
+  cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/cli/go.mod
+      - name: Test
+        run: cd apps/cli && go vet ./... && go test -race ./...
+      - name: Format check
+        run: test -z "$(gofmt -l apps/cli)"
+
   web:
     runs-on: ubuntu-latest
     steps:
